@@ -28,10 +28,6 @@ authBtn.addEventListener("click", (e) => {
 
 function userNotFound() {
   addChildren("user");
-  if (!popupForm.classList.contains("active")) {
-    popupForm.classList.add("active");
-    popupForm.parentElement.classList.add("active");
-  }
   let entry = document.querySelector(".entry");
   entry.addEventListener("click", (e) => {
     e.preventDefault();
@@ -41,10 +37,6 @@ function userNotFound() {
 
 function auth() {
   addChildren("auth");
-  if (!popupForm.classList.contains("active")) {
-    popupForm.classList.add("active");
-    popupForm.parentElement.classList.add("active");
-  }
   let form = document.forms[0];
   form.addEventListener("submit", async (e) => {
     e.preventDefault();

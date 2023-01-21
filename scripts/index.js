@@ -9,13 +9,29 @@ const updCards = function (data) {
   main.innerHTML = "";
   data.forEach(function (cat) {
     if (cat.id) {
-      let card = `<div class="${
-        cat.favourite ? "card like" : "card"
-      }" style="background-image:
-  url(${cat.img_link || "images/cat.jpg"})">
-  <span>${cat.name}</span>
-  </div>`;
-      main.innerHTML += card;
+      let card = document.createElement('div')
+      if (cat.favourite) {
+        card.classList.add("card")
+        card.classList.add("like")
+      } else card.classList.add("card")
+      if (cat.img_link) {
+        card.style.backgroundImage = `url(${cat.img_link}`
+      } else card.style.backgroundImage = "url('./images/cat.jpg')"
+      
+      let span = document.createElement('span')
+      span.innerHTML = cat.name 
+      card.append(span)
+      // let card = `<div class="${cat.favourite ? "card like" : "card" }" style="background-image: url(${cat.img_link || "images/cat.jpg"})">
+      //               <span>${cat.name}</span>
+      //             </div>`;
+      // main.innerHTML += card;
+      main.append(card)
+      // cardHandler(card, cat)
+      card.addEventListener('click', () => {
+        console.log(card);
+        console.log(cat);
+        cardHandler(card, cat)
+      })
     }
   });
   let cards = document.getElementsByClassName("card");
@@ -29,10 +45,6 @@ const updCards = function (data) {
 addBtn.addEventListener("click", (e) => {
   e.preventDefault();
   addChildren('add_pet')
-  if (!popupForm.classList.contains("active")) {
-    popupForm.classList.add("active");
-    popupForm.parentElement.classList.add("active");
-  }
 });
 closePopupForm.addEventListener("click", () => {
   popupForm.classList.remove("active");
@@ -93,7 +105,7 @@ const getCats = async function (api) {
 };
 getCats(api);
 
-function addChildren(namePopup) {
+function addChildren(namePopup, cat={}) {
     if (namePopup == 'add_pet') {
     form_inner.innerHTML = `
       <h2>Добавить питомца</h2>
@@ -132,4 +144,22 @@ function addChildren(namePopup) {
         <h4>Котики ждут!</h4>
         <button class="entry" type="submit">Ok</button>`;
   }
+  if (namePopup == "cat") {
+    form_inner.innerHTML = `<h2>${cat.name}</h2>
+        ${cat.age ? `<p>Возраст: ${cat.age}</p>` : ''}
+        ${cat.rate ? `<p>Рейтинг: ${cat.rate}</p>` : ''}
+        ${cat.description ? `<p>Описание: ${cat.description}</p>` : ''}
+        ${cat.favourite ? `<p>Любимый</p>` : ''}
+        `;
+  }
+  if (!popupForm.classList.contains("active")) {
+    popupForm.classList.add("active");
+    popupForm.parentElement.classList.add("active");
+  }
+}
+
+
+function cardHandler(card, cat) {
+  addChildren('cat',cat)
+  
 }
