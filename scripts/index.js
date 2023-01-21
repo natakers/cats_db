@@ -76,8 +76,8 @@ function formAddListener() {
           console.log(data);
         }
       });
-  
-      getCats(api);
+
+    getCats(api);
   });
 }
 
@@ -94,10 +94,8 @@ const getCats = async function (api) {
 getCats(api);
 
 function addChildren(namePopup) {
-  console.log('s');
     if (namePopup == 'add_pet') {
-      console.log('f');
-      form_inner.innerHTML = `
+    form_inner.innerHTML = `
       <h2>Добавить питомца</h2>
       <form action="">
         <div class="form-img"></div>
@@ -117,8 +115,21 @@ function addChildren(namePopup) {
         /></label>
         <input type="text" name="img_link" placeholder="Ссылка на фото" />
         <button type="submit">Добавить котика</button>
-      </form>`
-       formAddListener()
-    }
-
+      </form>`;
+    formAddListener();
   }
+
+  if (namePopup == "auth") {
+    form_inner.innerHTML = `<h2>Авторизация</h2>
+      <h4>Приветствую, незнакомец! Введи свое имя</h4>
+      <form action="">
+        <input type="text" name="user" required placeholder="Ваше имя" />
+        <button type="submit">Сохранить</button>
+      </form>`;
+  }
+  if (namePopup == "user") {
+    form_inner.innerHTML = `<h2>Приветствую, ${Cookies.get("user")}</h2>
+        <h4>Котики ждут!</h4>
+        <button class="entry" type="submit">Ok</button>`;
+  }
+}
