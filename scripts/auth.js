@@ -27,12 +27,16 @@ authBtn.addEventListener("click", (e) => {
 });
 
 function userNotFound() {
+
   addChildren("user");
   let entry = document.querySelector(".entry");
-  entry.addEventListener("click", (e) => {
-    e.preventDefault();
-    closePopupForm.click();
-  });
+  if (entry) {
+    entry.addEventListener("click", (e) => {
+      e.preventDefault();
+      closePopupForm.click();
+    });
+  }
+  
 }
 
 function auth() {

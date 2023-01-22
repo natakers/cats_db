@@ -223,3 +223,24 @@ form button:active {
   margin-left: 10px;
   cursor: pointer;
 }
+
+.edit {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.back {
+  padding: 0 5px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.input-box {
+  display: flex;
+  align-items: center;
+}
+
+.form-img-edit {
+  width: 200px;
+  height: 200px;
+}
