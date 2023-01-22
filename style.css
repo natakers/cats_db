@@ -212,3 +212,14 @@ form button:active {
   color: #fff;
   box-shadow: 0 0 2px 0 #0004;
 }
+
+
+.cat_name {
+  display: flex;
+  justify-content: center;
+}
+
+.delete {
+  margin-left: 10px;
+  cursor: pointer;
+}

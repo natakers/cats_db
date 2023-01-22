@@ -30,7 +30,7 @@ const updCards = function (data) {
       card.addEventListener('click', () => {
         console.log(card);
         console.log(cat);
-        cardHandler(card, cat)
+        addChildren('cat',cat)
       })
     }
   });
@@ -141,16 +141,35 @@ function addChildren(namePopup, cat={}) {
   }
   if (namePopup == "user") {
     form_inner.innerHTML = `<h2>Приветствую, ${Cookies.get("user")}</h2>
-        <h4>Котики ждут!</h4>
-        <button class="entry" type="submit">Ok</button>`;
+        <h4>Котики ждут!</h4>`
+  }
+  if (namePopup == "delete") {
+    form_inner.innerHTML = `<h2>Вы уверены?</h2>
+      <h4>Удалить котика?</h4>
+      <form action="">
+        <button class="confirm_delete" type="submit">Да</button>
+        <button class="confirm_return">Нет</button>
+      </form>`;
+      let returnBtn = document.querySelector('.confirm_return')
+        returnBtn.addEventListener('click', () => {
+          addChildren('cat', cat)
+        })
+        let deleteConfirm = document.querySelector('.confirm_delete')
+        deleteConfirm.addEventListener('click', () => {
+          formDeleteListener(cat)
+        })
   }
   if (namePopup == "cat") {
-    form_inner.innerHTML = `<h2>${cat.name}</h2>
+    form_inner.innerHTML = `<div class="cat_name"><h2>${cat.name}</h2><div class="btn delete"><i class="fa-solid fa-trash"></i></div></div>
         ${cat.age ? `<p>Возраст: ${cat.age}</p>` : ''}
         ${cat.rate ? `<p>Рейтинг: ${cat.rate}</p>` : ''}
         ${cat.description ? `<p>Описание: ${cat.description}</p>` : ''}
         ${cat.favourite ? `<p>Любимый</p>` : ''}
         `;
+        let deleteBtn = document.querySelector('.delete')
+        deleteBtn.addEventListener('click', () => {
+          addChildren('delete', cat)
+        })
   }
   if (!popupForm.classList.contains("active")) {
     popupForm.classList.add("active");
@@ -159,7 +178,21 @@ function addChildren(namePopup, cat={}) {
 }
 
 
-function cardHandler(card, cat) {
-  addChildren('cat',cat)
-  
+function formDeleteListener(cat) {
+  let form = document.forms[0];
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await api
+      .delCat(cat.id)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.message === "ok") {
+          form.reset();
+          closePopupForm.click();
+        } else {
+          console.log(data);
+        }
+      });
+    getCats(api);
+  });
 }
