@@ -1,32 +1,36 @@
 let main = document.querySelector("main");
-let namePopup = ''
+let namePopup = "";
 let addBtn = document.querySelector("#add");
 let popupForm = document.querySelector("#popup-form");
 let closePopupForm = popupForm.querySelector(".popup-close");
-let form_inner = document.querySelector('.form-inner')
+let form_inner = document.querySelector(".form-inner");
+
+let catsData = localStorage.getItem("cats");
+catsData = catsData ? JSON.parse(catsData) : [];
+console.log(catsData);
 
 const updCards = function (data) {
   main.innerHTML = "";
   data.forEach(function (cat) {
     if (cat.id) {
-      let card = document.createElement('div')
+      let card = document.createElement("div");
       if (cat.favourite) {
-        card.classList.add("card")
-        card.classList.add("like")
-      } else card.classList.add("card")
+        card.classList.add("card");
+        card.classList.add("like");
+      } else card.classList.add("card");
       if (cat.img_link) {
-        card.style.backgroundImage = `url(${cat.img_link}`
-      } else card.style.backgroundImage = "url('./images/cat.jpg')"
-      
-      let span = document.createElement('span')
-      span.innerHTML = cat.name 
-      card.append(span)
-      main.append(card)
-      card.addEventListener('click', () => {
+        card.style.backgroundImage = `url(${cat.img_link}`;
+      } else card.style.backgroundImage = "url('./images/cat.jpg')";
+
+      let span = document.createElement("span");
+      span.innerHTML = cat.name;
+      card.append(span);
+      main.append(card);
+      card.addEventListener("click", () => {
         console.log(card);
         console.log(cat);
-        addChildren('cat',cat)
-      })
+        addChildren("cat", cat);
+      });
     }
   });
   let cards = document.getElementsByClassName("card");
@@ -36,10 +40,9 @@ const updCards = function (data) {
   }
 };
 
-
 addBtn.addEventListener("click", (e) => {
   e.preventDefault();
-  addChildren('add_pet')
+  addChildren("add_pet");
 });
 closePopupForm.addEventListener("click", () => {
   popupForm.classList.remove("active");
@@ -79,30 +82,53 @@ function formAddListener() {
         if (data.message === "ok") {
           form.reset();
           closePopupForm.click();
+          api
+            .getCat(body.id)
+            .then((res) => res.json())
+            .then((cat) => {
+              if (cat.message === "ok") {
+                catsData.push(cat.data);
+                localStorage.setItem("cats", JSON.stringify(catsData));
+                getCats(api, catsData);
+              } else {
+                console.log(cat);
+                
+              }
+            });
         } else {
           console.log(data);
-          addChildren('error', data)
+          addChildren("error", data);
+          api
+            .getIds()
+            .then((r) => r.json())
+            .then((d) => console.log(d));
         }
       });
-
-    getCats(api);
   });
 }
 
-const getCats = async function (api) {
-  await api
-    .getCats()
-    .then((res) => res.json())
-    .then((data) => {
-      if (data.message === "ok") {
-        updCards(data.data);
-      }
-    });
-};
-getCats(api);
 
-function addChildren(namePopup, data={}) {
-    if (namePopup == 'add_pet') {
+const getCats = function (api, store) {
+  if (!store.length) {
+    api
+      .getCats()
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if (data.message === "ok") {
+          localStorage.setItem("cats", JSON.stringify(data.data));
+          catsData = [...data.data];
+          updCards(data.data);
+        }
+      });
+  } else {
+    updCards(store);
+  }
+};
+getCats(api, catsData);
+
+function addChildren(namePopup, data = {}) {
+  if (namePopup == "add_pet") {
     form_inner.innerHTML = `
       <h2>Добавить питомца</h2>
       <form action="">
@@ -137,7 +163,7 @@ function addChildren(namePopup, data={}) {
   }
   if (namePopup == "user") {
     form_inner.innerHTML = `<h2>Приветствую, ${Cookies.get("user")}</h2>
-        <h4>Котики ждут!</h4>`
+        <h4>Котики ждут!</h4>`;
   }
   if (namePopup == "delete") {
     form_inner.innerHTML = `<h2>Вы уверены?</h2>
@@ -146,14 +172,14 @@ function addChildren(namePopup, data={}) {
         <button class="confirm_delete" type="submit">Да</button>
         <button class="confirm_return">Нет</button>
       </form>`;
-      let returnBtn = document.querySelector('.confirm_return')
-        returnBtn.addEventListener('click', () => {
-          addChildren('cat', data)
-        })
-        let deleteConfirm = document.querySelector('.confirm_delete')
-        deleteConfirm.addEventListener('click', () => {
-          formDeleteListener(data)
-        })
+    let returnBtn = document.querySelector(".confirm_return");
+    returnBtn.addEventListener("click", () => {
+      addChildren("cat", data);
+    });
+    let deleteConfirm = document.querySelector(".confirm_delete");
+    deleteConfirm.addEventListener("click", () => {
+      formDeleteListener(data);
+    });
   }
   if (namePopup == "cat") {
     form_inner.innerHTML = `<div class="cat_name">
@@ -161,20 +187,22 @@ function addChildren(namePopup, data={}) {
     <div class="btn delete"><i class="fa-solid fa-trash"></i></div>
     <div class="btn edit"><i class="fa-solid fa-pen"></i></div>
     </div>
-        <div class="form-img form-img-edit" style="background-image: url(${data.img_link ? data.img_link : './images/cat.jpg'}) "></div>
-        ${data.age ? `<p>Возраст: ${data.age}</p>` : ''}
-        ${data.rate ? `<p>Рейтинг: ${data.rate}</p>` : ''}
-        ${data.description ? `<p>Описание: ${data.description}</p>` : ''}
+        <div class="form-img form-img-edit" style="background-image: url(${
+          data.img_link ? data.img_link : "./images/cat.jpg"
+        }) "></div>
+        ${data.age ? `<p>Возраст: ${data.age}</p>` : ""}
+        ${data.rate ? `<p>Рейтинг: ${data.rate}</p>` : ""}
+        ${data.description ? `<p>Описание: ${data.description}</p>` : ""}
         ${data.favourite ? `<p>Любимчик: Да</p>` : `<p>Любимчик: Нет</p>`}
         `;
-        let deleteBtn = document.querySelector('.delete')
-        deleteBtn.addEventListener('click', () => {
-          addChildren('delete', data)
-        })
-        let editBtn = document.querySelector('.edit')
-        editBtn.addEventListener('click', () => {
-          addChildren('edit', data)
-        })
+    let deleteBtn = document.querySelector(".delete");
+    deleteBtn.addEventListener("click", () => {
+      addChildren("delete", data);
+    });
+    let editBtn = document.querySelector(".edit");
+    editBtn.addEventListener("click", () => {
+      addChildren("edit", data);
+    });
   }
   if (namePopup == "edit") {
     form_inner.innerHTML = `<div class="cat_name">
@@ -183,31 +211,46 @@ function addChildren(namePopup, data={}) {
     
     </div>
     <form action="">
-    <div class="form-img form-img-edit" style="background-image: url(${data.img_link ? data.img_link : './images/cat.jpg'}) "></div>
-        <div class='input-box'><label>Имя: </label><input type="text" name="name" value=${data.name ? data.name : ''}></input></div>
-        <div class='input-box'><label>Возраст: </label><input type="number" name="age" min="0" value=${data.age ? data.age : '0'}></input></div>
-        <div class='input-box'><label>Рейтинг: </label><input type="number" min="0" max="10" name="rate" value=${data.rate ? data.rate : '0'}></input></div>
-        <div class='input-box'><label>Описание: </label><input type="textarea" name="description" value=${data.description ? data.description : ''}></input></div>
-        <div class='input-box'><label>Ссфлка на фото: </label><input type="text" name="img_link" value=${data.img_link ? data.img_link : "./images/cat.jpg"}></input></div>
-        ${data.favourite ? `<label>Любимчик <input type="checkbox" name="favourite" checked placeholder=""/></label>` : `<label>Любимчик <input type="checkbox" name="favourite" placeholder=""/></label>`}
+    <div class="form-img form-img-edit" style="background-image: url(${
+      data.img_link ? data.img_link : "./images/cat.jpg"
+    }) "></div>
+        <div class='input-box'><label>Имя: </label><input type="text" name="name" value=${
+          data.name ? data.name : ""
+        }></input></div>
+        <div class='input-box'><label>Возраст: </label><input type="number" name="age" min="0" value=${
+          data.age ? data.age : "0"
+        }></input></div>
+        <div class='input-box'><label>Рейтинг: </label><input type="number" min="0" max="10" name="rate" value=${
+          data.rate ? data.rate : "0"
+        }></input></div>
+        <div class='input-box'><label>Описание: </label><input type="textarea" name="description" value=${
+          data.description ? data.description : ""
+        }></input></div>
+        <div class='input-box'><label>Ссфлка на фото: </label><input type="text" name="img_link" value=${
+          data.img_link ? data.img_link : "./images/cat.jpg"
+        }></input></div>
+        ${
+          data.favourite
+            ? `<label>Любимчик <input type="checkbox" name="favourite" checked placeholder=""/></label>`
+            : `<label>Любимчик <input type="checkbox" name="favourite" placeholder=""/></label>`
+        }
     <button class="update-cat" type="submit">Обновить котика</button>
         </form>
         `;
-        formUpdateListener(data)
-        let back = document.querySelector('.back')
-        back.addEventListener('click', () => {
-          addChildren('cat', data)
-        })
+    formUpdateListener(data);
+    let back = document.querySelector(".back");
+    back.addEventListener("click", () => {
+      addChildren("cat", data);
+    });
   }
   if (namePopup == "error") {
-    form_inner.innerHTML = `<h2>${data.message}</h2>`
+    form_inner.innerHTML = `<h2>${data.message}</h2>`;
   }
   if (!popupForm.classList.contains("active")) {
     popupForm.classList.add("active");
     popupForm.parentElement.classList.add("active");
   }
 }
-
 
 function formDeleteListener(cat) {
   let form = document.forms[0];
@@ -218,16 +261,19 @@ function formDeleteListener(cat) {
       .then((res) => res.json())
       .then((data) => {
         if (data.message === "ok") {
+          catsData = catsData.filter((item) =>  item.id != cat.id);
+          console.log(catsData)
+          localStorage.setItem("cats", JSON.stringify(catsData));
+          getCats(api, catsData);
           form.reset();
           closePopupForm.click();
         } else {
           console.log(data);
         }
       });
-    getCats(api);
+    getCats(api, catsData);
   });
 }
-
 
 function formUpdateListener(cat) {
   let form = document.forms[0];
@@ -237,7 +283,7 @@ function formUpdateListener(cat) {
   form.img_link.addEventListener("input", (e) => {
     form.firstElementChild.style.backgroundImage = `url(${e.target.value})`;
   });
-  let cat_name = document.querySelector('.title-name')
+  let cat_name = document.querySelector(".title-name");
   form.name.addEventListener("change", (e) => {
     cat_name.innerHTML = e.target.value;
   });
@@ -269,12 +315,29 @@ function formUpdateListener(cat) {
         if (data.message === "ok") {
           form.reset();
           closePopupForm.click();
+          api
+            .getCat(cat.id)
+            .then((res) => res.json())
+            .then((cat) => {
+              console.log(cat);
+              if (cat.message === "ok") {
+                catsData = catsData.map((item) =>  item.id == cat.data.id ? cat.data : item);
+                console.log(catsData)
+                localStorage.setItem("cats", JSON.stringify(catsData));
+                getCats(api, catsData);
+              } else {
+                console.log(cat);
+              }
+            });
         } else {
-          
           console.log(data);
+          api
+            .getIds()
+            .then((r) => r.json())
+            .then((d) => console.log(d));
         }
       });
 
-    getCats(api);
+    getCats(api, catsData);
   });
 }
