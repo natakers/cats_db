@@ -81,6 +81,7 @@ function formAddListener() {
           closePopupForm.click();
         } else {
           console.log(data);
+          addChildren('error', data)
         }
       });
 
@@ -100,7 +101,7 @@ const getCats = async function (api) {
 };
 getCats(api);
 
-function addChildren(namePopup, cat={}) {
+function addChildren(namePopup, data={}) {
     if (namePopup == 'add_pet') {
     form_inner.innerHTML = `
       <h2>Добавить питомца</h2>
@@ -147,56 +148,59 @@ function addChildren(namePopup, cat={}) {
       </form>`;
       let returnBtn = document.querySelector('.confirm_return')
         returnBtn.addEventListener('click', () => {
-          addChildren('cat', cat)
+          addChildren('cat', data)
         })
         let deleteConfirm = document.querySelector('.confirm_delete')
         deleteConfirm.addEventListener('click', () => {
-          formDeleteListener(cat)
+          formDeleteListener(data)
         })
   }
   if (namePopup == "cat") {
     form_inner.innerHTML = `<div class="cat_name">
-    <h2>${cat.name}</h2>
+    <h2>${data.name}</h2>
     <div class="btn delete"><i class="fa-solid fa-trash"></i></div>
     <div class="btn edit"><i class="fa-solid fa-pen"></i></div>
     </div>
-        <div class="form-img form-img-edit" style="background-image: url(${cat.img_link ? cat.img_link : './images/cat.jpg'}) "></div>
-        ${cat.age ? `<p>Возраст: ${cat.age}</p>` : ''}
-        ${cat.rate ? `<p>Рейтинг: ${cat.rate}</p>` : ''}
-        ${cat.description ? `<p>Описание: ${cat.description}</p>` : ''}
-        ${cat.favourite ? `<p>Любимчик: Да</p>` : `<p>Любимчик: Нет</p>`}
+        <div class="form-img form-img-edit" style="background-image: url(${data.img_link ? data.img_link : './images/cat.jpg'}) "></div>
+        ${data.age ? `<p>Возраст: ${data.age}</p>` : ''}
+        ${data.rate ? `<p>Рейтинг: ${data.rate}</p>` : ''}
+        ${data.description ? `<p>Описание: ${data.description}</p>` : ''}
+        ${data.favourite ? `<p>Любимчик: Да</p>` : `<p>Любимчик: Нет</p>`}
         `;
         let deleteBtn = document.querySelector('.delete')
         deleteBtn.addEventListener('click', () => {
-          addChildren('delete', cat)
+          addChildren('delete', data)
         })
         let editBtn = document.querySelector('.edit')
         editBtn.addEventListener('click', () => {
-          addChildren('edit', cat)
+          addChildren('edit', data)
         })
   }
   if (namePopup == "edit") {
     form_inner.innerHTML = `<div class="cat_name">
     <div class="btn back"><i class="fa-sharp fa-solid fa-circle-left"></i>Назад</div>
-    <h2 class='title-name'>${cat.name}</h2>
+    <h2 class='title-name'>${data.name}</h2>
     
     </div>
     <form action="">
-    <div class="form-img form-img-edit" style="background-image: url(${cat.img_link ? cat.img_link : './images/cat.jpg'}) "></div>
-        <div class='input-box'><label>Имя: </label><input type="text" name="name" value=${cat.name ? cat.name : ''}></input></div>
-        <div class='input-box'><label>Возраст: </label><input type="number" name="age" min="0" value=${cat.age ? cat.age : '0'}></input></div>
-        <div class='input-box'><label>Рейтинг: </label><input type="number" min="0" max="10" name="rate" value=${cat.rate ? cat.rate : '0'}></input></div>
-        <div class='input-box'><label>Описание: </label><input type="textarea" name="description" value=${cat.description ? cat.description : ''}></input></div>
-        <div class='input-box'><label>Ссфлка на фото: </label><input type="text" name="img_link" value=${cat.img_link ? cat.img_link : "./images/cat.jpg"}></input></div>
-        ${cat.favourite ? `<label>Любимчик <input type="checkbox" name="favourite" checked placeholder=""/></label>` : `<label>Любимчик <input type="checkbox" name="favourite" placeholder=""/></label>`}
+    <div class="form-img form-img-edit" style="background-image: url(${data.img_link ? data.img_link : './images/cat.jpg'}) "></div>
+        <div class='input-box'><label>Имя: </label><input type="text" name="name" value=${data.name ? data.name : ''}></input></div>
+        <div class='input-box'><label>Возраст: </label><input type="number" name="age" min="0" value=${data.age ? data.age : '0'}></input></div>
+        <div class='input-box'><label>Рейтинг: </label><input type="number" min="0" max="10" name="rate" value=${data.rate ? data.rate : '0'}></input></div>
+        <div class='input-box'><label>Описание: </label><input type="textarea" name="description" value=${data.description ? data.description : ''}></input></div>
+        <div class='input-box'><label>Ссфлка на фото: </label><input type="text" name="img_link" value=${data.img_link ? data.img_link : "./images/cat.jpg"}></input></div>
+        ${data.favourite ? `<label>Любимчик <input type="checkbox" name="favourite" checked placeholder=""/></label>` : `<label>Любимчик <input type="checkbox" name="favourite" placeholder=""/></label>`}
     <button class="update-cat" type="submit">Обновить котика</button>
         </form>
         `;
-        formUpdateListener(cat)
+        formUpdateListener(data)
         let back = document.querySelector('.back')
         back.addEventListener('click', () => {
-          addChildren('cat', cat)
+          addChildren('cat', data)
         })
+  }
+  if (namePopup == "error") {
+    form_inner.innerHTML = `<h2>${data.message}</h2>`
   }
   if (!popupForm.classList.contains("active")) {
     popupForm.classList.add("active");
@@ -266,6 +270,7 @@ function formUpdateListener(cat) {
           form.reset();
           closePopupForm.click();
         } else {
+          
           console.log(data);
         }
       });
