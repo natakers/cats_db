@@ -27,7 +27,6 @@ authBtn.addEventListener("click", (e) => {
 });
 
 function userNotFound() {
-
   addChildren("user");
   let entry = document.querySelector(".entry");
   if (entry) {
@@ -47,8 +46,8 @@ function auth() {
     if (form.elements.user.value != "") {
       Cookies.set("user", form.elements.user.value);
     }
-    console.log(form.elements.user.value);
     form.reset();
     closePopupForm.click();
+    getCats(api, catsData);
   });
 }

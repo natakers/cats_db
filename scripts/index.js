@@ -7,7 +7,6 @@ let form_inner = document.querySelector(".form-inner");
 
 let catsData = localStorage.getItem("cats");
 catsData = catsData ? JSON.parse(catsData) : [];
-console.log(catsData);
 
 const updCards = function (data) {
   main.innerHTML = "";
@@ -27,8 +26,6 @@ const updCards = function (data) {
       card.append(span);
       main.append(card);
       card.addEventListener("click", () => {
-        console.log(card);
-        console.log(cat);
         addChildren("cat", cat);
       });
     }
@@ -59,7 +56,7 @@ function formAddListener() {
   form.img_link.addEventListener("input", (e) => {
     form.firstElementChild.style.backgroundImage = `url(${e.target.value})`;
   });
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
     let body = {};
     for (let i = 0; i < form.elements.length; i++) {
@@ -74,8 +71,7 @@ function formAddListener() {
         }
       }
     }
-    console.log(body);
-    await api
+    api
       .addCat(body)
       .then((res) => res.json())
       .then((data) => {
@@ -88,13 +84,11 @@ function formAddListener() {
             .then((cat) => {
               if (cat.message === "ok") {
                 catsData.push(cat.data);
-                localStorage.setItem("cats", JSON.stringify(catsData));
-                getCats(api, catsData);
+                localStorage.setItem("cats", JSON.stringify(catsData)); 
               } else {
                 console.log(cat);
-                
               }
-            });
+            }).then(() => getCats(api, catsData));
         } else {
           console.log(data);
           addChildren("error", data);
@@ -114,7 +108,6 @@ const getCats = function (api, store) {
       .getCats()
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         if (data.message === "ok") {
           localStorage.setItem("cats", JSON.stringify(data.data));
           catsData = [...data.data];
@@ -125,7 +118,11 @@ const getCats = function (api, store) {
     updCards(store);
   }
 };
-getCats(api, catsData);
+
+if (Cookies.get("user")) {
+  getCats(api, catsData);
+}
+
 
 function addChildren(namePopup, data = {}) {
   if (namePopup == "add_pet") {
@@ -254,24 +251,21 @@ function addChildren(namePopup, data = {}) {
 
 function formDeleteListener(cat) {
   let form = document.forms[0];
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
-    await api
+    api
       .delCat(cat.id)
       .then((res) => res.json())
       .then((data) => {
         if (data.message === "ok") {
           catsData = catsData.filter((item) =>  item.id != cat.id);
-          console.log(catsData)
           localStorage.setItem("cats", JSON.stringify(catsData));
           getCats(api, catsData);
           form.reset();
           closePopupForm.click();
         } else {
-          console.log(data);
         }
-      });
-    getCats(api, catsData);
+      }).then(() => getCats(api, catsData));;
   });
 }
 
@@ -290,7 +284,7 @@ function formUpdateListener(cat) {
   form.name.addEventListener("input", (e) => {
     cat_name.innerHTML = e.target.value;
   });
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener("submit", (e) => {
     e.preventDefault();
     let body = {};
     for (let i = 0; i < form.elements.length; i++) {
@@ -307,8 +301,7 @@ function formUpdateListener(cat) {
         }
       }
     }
-    console.log(body);
-    await api
+    api
       .updCat(cat.id, body)
       .then((res) => res.json())
       .then((data) => {
@@ -324,20 +317,16 @@ function formUpdateListener(cat) {
                 catsData = catsData.map((item) =>  item.id == cat.data.id ? cat.data : item);
                 console.log(catsData)
                 localStorage.setItem("cats", JSON.stringify(catsData));
-                getCats(api, catsData);
               } else {
                 console.log(cat);
               }
-            });
+            }).then(() => getCats(api, catsData));;
         } else {
-          console.log(data);
           api
             .getIds()
             .then((r) => r.json())
             .then((d) => console.log(d));
         }
-      });
-
-    getCats(api, catsData);
+      }).then(() => getCats(api, catsData));
   });
 }
